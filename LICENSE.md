@@ -1,4 +1,4 @@
-BSD 2-Clause License
+# BSD 2-Clause License
 
 Copyright 2026 amigazen project
 
@@ -35,13 +35,13 @@ library, resident code, and support programs remained their copyrighted product.
 
 This `hotlinks.library` is an **independent reimplementation** by
 amigazen project. It was written using the public SDK materials (headers,
-autodocs, and format notes in `fw2odf/HotLinks_Developers_Kit/`) as reference
+autodocs, and format notes in `/HotLinks_Developers_Kit/`) as reference
 entirely from first principles. **It does not incorporate, derive from, or link 
-against any Soft-Logik HotLinks source code, binaries, or resident program.
+against any Soft-Logik source code, binaries, or resident program.
 
 ** API and on-disk layout compatibility with the 1992 specification is intentional; 
 authorship and copyright of this codebase are otherwise unrelated to Soft-Logik.
 
-Soft-Logik, PageStream, PageLiner, BME, and related product names are
+SoftLogik, PageStream, PageLiner, BME, and related product names are
 trademarks of their respective owners. This project is not affiliated with,
 endorsed by, or sponsored by Soft-Logik Publishing Corp.
