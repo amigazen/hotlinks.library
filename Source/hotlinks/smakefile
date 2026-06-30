@@ -1,0 +1,64 @@
+#
+# Source/hotlinks/smakefile - hotlinks.library (CLib37x / docs.library pattern)
+#
+
+CC      = sc
+LD      = slink
+RM      = delete force quiet
+
+TARGET  = hotlinks.library
+BUILD_H = private/hl_build.h
+
+OBJS    = StartUp.o LibInit.o
+OBJS    = $(OBJS) hl_lib.o
+OBJS    = $(OBJS) hl_util.o
+OBJS    = $(OBJS) hl_token.o
+OBJS    = $(OBJS) hl_req.o
+OBJS    = $(OBJS) hl_pass.o
+
+all: $(TARGET)
+
+rebuild: clean all
+
+$(TARGET): $(OBJS) smakefile.wth $(BUILD_H)
+	$(LD) WITH smakefile.wth WITH LIB:utillib.with
+
+StartUp.o: StartUp.c $(BUILD_H)
+	$(CC) StartUp.c
+
+LibInit.o: LibInit.c $(BUILD_H)
+	$(CC) LibInit.c
+
+hl_lib.o: hl_lib.c $(BUILD_H)
+	$(CC) hl_lib.c
+
+hl_util.o: hl_util.c
+	$(CC) hl_util.c
+
+hl_token.o: hl_token.c private/hl_token.h
+	$(CC) hl_token.c
+
+hl_req.o: hl_req.c private/hl_req.h
+	$(CC) hl_req.c
+
+hl_pass.o: hl_pass.c private/hl_pass.h
+	$(CC) hl_pass.c
+
+release:
+	Copy $(TARGET) //SYS/Libs/$(TARGET)
+
+install:
+	Copy $(TARGET) LIBS:$(TARGET)
+	avail flush
+
+headers:
+	Copy clone /include/libraries/hotlinks.h //SDK/Include_h/libraries/hotlinks.h
+	Copy clone /include/libraries/hotlinksbase.h //SDK/Include_h/libraries/hotlinksbase.h
+	Copy clone /include/proto/hotlinks.h //SDK/Include_h/proto/hotlinks.h
+	Copy clone /include/clib/hotlinks_protos.h //SDK/Include_h/clib/hotlinks_protos.h
+	Copy clone /include/pragmas/hotlinks_pragmas.h //SDK/Include_h/pragmas/hotlinks_pragmas.h
+
+clean:
+	-$(RM) \#?.o
+	-$(RM) $(TARGET)
+	-$(RM) $(TARGET).info

@@ -1,0 +1,11 @@
+FROM     StartUp.o
+         LibInit.o
+         hl_lib.o
+         hl_util.o
+         hl_token.o
+         hl_req.o
+         hl_pass.o
+LIB      LIB:sc.lib LIB:amiga.lib
+SC SD ND
+NODEBUG
+TO       hotlinks.library

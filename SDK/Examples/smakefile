@@ -1,0 +1,45 @@
+#
+# SDK/Examples/smakefile - build hotlinks.library sample programs (SAS/C)
+#
+# Requires LIBS:hotlinks.library and headers from Source/include (smake headers).
+#
+
+CC      = sc
+LD      = slink
+RM      = delete force quiet
+
+COMMON  = hl_common.o
+PROGS   = edlist publish_text read_edition subscribe_demo
+
+all: $(PROGS)
+
+hl_common.o: hl_common.c hl_common.h
+	$(CC) hl_common.c
+
+edlist: edlist.o $(COMMON)
+	$(LD) FROM edlist.o hl_common.o LIB LIB:sc.lib LIB:amiga.lib SC SD TO edlist
+
+edlist.o: edlist.c hl_common.h
+	$(CC) edlist.c
+
+publish_text: publish_text.o $(COMMON)
+	$(LD) FROM publish_text.o hl_common.o LIB LIB:sc.lib LIB:amiga.lib SC SD TO publish_text
+
+publish_text.o: publish_text.c hl_common.h
+	$(CC) publish_text.c
+
+read_edition: read_edition.o $(COMMON)
+	$(LD) FROM read_edition.o hl_common.o LIB LIB:sc.lib LIB:amiga.lib SC SD TO read_edition
+
+read_edition.o: read_edition.c hl_common.h
+	$(CC) read_edition.c
+
+subscribe_demo: subscribe_demo.o $(COMMON)
+	$(LD) FROM subscribe_demo.o hl_common.o LIB LIB:sc.lib LIB:amiga.lib SC SD TO subscribe_demo
+
+subscribe_demo.o: subscribe_demo.c hl_common.h
+	$(CC) subscribe_demo.c
+
+clean:
+	-$(RM) \#?.o
+	-$(RM) $(PROGS)

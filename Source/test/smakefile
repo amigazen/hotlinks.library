@@ -1,0 +1,25 @@
+#
+# Source/test/smakefile - hotlinks.library console test harness (SAS/C)
+#
+# Requires:
+#   LIBS:hotlinks.library  (cd /hotlinks && smake install)
+#   SDK headers            (cd /hotlinks && smake headers)
+#
+
+CC      = sc
+LD      = slink
+RM      = delete force quiet
+
+TARGET  = hl_test
+
+all: $(TARGET)
+
+$(TARGET): hl_test.o smakefile
+	$(LD) FROM sc:lib/c.o hl_test.o LIB LIB:sc.lib LIB:amiga.lib SC SD TO $(TARGET)
+
+hl_test.o: hl_test.c hl_test.h
+	$(CC) hl_test.c
+
+clean:
+	-$(RM) \#?.o
+	-$(RM) $(TARGET)
