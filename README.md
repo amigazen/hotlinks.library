@@ -1,20 +1,15 @@
 # hotlinks.library
 
-Desktop publishing in the 1990s meant assembling magazines, manuals, and presentations from pieces — body text, logos, charts, scanned photos — each owned by a different program. Copying static files between apps
-loses live updates; embedding everything in one monolithic format loses tool choice.
+Desktop publishing in the 1990s meant assembling magazines, manuals, and presentations from pieces — 
+body text, logos, charts, scanned photos — each owned by a different program. Copying static files between apps loses live updates; embedding everything in one monolithic format loses tool choice.
 
 Personal computing platforms solved this in several similar ways: Macintosh **Publish & Subscribe**
-(System 7), Windows **DDE** and later **OLE**, NeXT **typed pasteboard linking**. AmigaOS had IFF
-and the clipboard, but no OS-level live-link layer for DTP.
+(System 7), Windows **DDE** and later **OLE**, NeXT **typed pasteboard linking**. Amiga had the IFF standard and clipboard, but no OS-level live-link layer for DTP and other similar use cases.
 
-Soft-Logik filled that gap with **HotLinks** for the PageStream ecosystem: a shared **edition catalog**
+Soft-Logik filled that gap with **HotLinks** for their PageStream ecosystem: a shared **edition catalog**
 where publishers commit IFF documents and subscribers keep **links** that refresh when content changes.
 
-This **hotlinks.library** from amigazen project is a BSD-licensed, ABI-compatible reimplementation of
-Soft-Logik's 1992 library. It preserves the original function table, `PubBlock` / `PubRecord` layouts,
-and message protocol while replacing the proprietary resident broker with a self-contained library —
-one `OpenLibrary()` call, no background daemon, with cross-process state brokered by Exec
-NamedObjects instead of a resident process.
+This new version of **hotlinks.library** from amigazen project is a BSD-licensed, ABI-compatible reimplementation of Soft-Logik's 1992 HotLinks systems. It preserves the original function table, `PubBlock` / `PubRecord` layouts, and message protocol while replacing the proprietary resident broker with a self-contained library — one `OpenLibrary()` call, no background daemon, with cross-process state brokered by Exec NamedObjects instead of a resident process.
 
 ## [amigazen project](http://www.amigazen.com)
 
@@ -40,9 +35,9 @@ PRs for all projects are gratefully received at [GitHub](https://github.com/amig
 for the Amiga desktop-publishing stack around **PageStream** (layout), **PageLiner** (text), and **BME**
 (Bitmap Editor). The April 1992 **HotLinks Developers Kit** documented 27 LVOs, `HLMsg` message types,
 IFF edition formats (`FORM DTXT`, `FORM ILBM`), access control, and on-disk layout. Soft-Logik compared
-HotLinks openly to Macintosh Publish & Subscribe, Windows DDE/OLE, and NeXT linking — and, like ARexx
-and IFF, opened the **interface and specification** to the Amiga community while retaining copyright
-on the resident broker and shipping binaries.
+HotLinks openly to Macintosh Publish & Subscribe, Windows DDE/OLE, and NeXT linking — and opened the
+**interface and specification** to the Amiga community to adopt freely. However, SoftLogik did not open 
+source their implementation, impeding wider adoption of the standard.
 
 The original product was two-tier:
 
@@ -51,9 +46,6 @@ The original product was two-tier:
 
 If the resident was not running, `OpenLibrary("hotlinks.library", 0)` failed. Editions lived in a
 private HotLinks directory; clients used the API rather than hard-coded paths.
-
-Original SDK reference (headers and autodocs only, no library source):
-`fw2odf/HotLinks_Developers_Kit/`.
 
 ## The publish/subscribe pattern
 
@@ -85,7 +77,7 @@ Three subscribe modes from the 1992 documentation map directly to `Notify` flags
 - **Import once** — read the edition body and `UnSubscribe`; no ongoing association
 
 Unlike ARexx, HotLinks sends no arbitrary commands to peer programs — only **edition changed**
-notification (`HLMSGID_NOTIFY`). Unlike DDE, payloads are whole IFF files accessed with DOS-like
+notification (`HLMSGID_NOTIFY`). Unlike DDE, payloads are whole IFF files accessed with DOS-like calls
 `OpenPub` / `ReadPub` / `WritePub` / `SeekPub` / `ClosePub`, suited to multi-megabyte graphics and
 formatted text rather than spreadsheet cell handles.
 
@@ -95,7 +87,7 @@ formatted text rather than spreadsheet cell handles.
 Publishers write self-contained **edition files** into a shared catalog; subscribers keep placement and
 formatting in their layout document while **content** refreshes when the edition version bumps.
 
-This reimplementation collapses the 1992 two-tier design into one library:
+This reimplementation by amigazen project collapses the 1992 two-tier design into one library:
 
 | Original Soft-Logik | This project |
 | ------------------- | ------------ |
@@ -128,13 +120,12 @@ direction in 1992 documentation but never appeared in the shipped API).
 HotLinks sits in a long line of cross-application live-data mechanisms. The design chose file-native IFF
 editions and an explicit catalog API over component object models:
 
-| Inspiration | What we took from it |
+| Inspiration | What HotLinks took from it |
 |-------------|----------------------|
 | **Macintosh Publish & Subscribe** (System 7) | Explicit publish and subscribe with layout separate from content. HotLinks adds a visible catalog (`FirstPub` / `NextPub`), version numbers, owner/group access flags, and read/write locks — closer to a small document database than Mac's desk-scrap edition manager. |
 | **Windows DDE** | Conversation-oriented `topic`/`item` updates for small, frequent data. HotLinks streams large IFF bodies instead. DDE advise loops resemble `Notify`, but HotLinks standardises only **edition changed** messages. |
 | **OLE / OLE32** | COM servers, structured storage, in-place activation. HotLinks keeps **file-native IFF editions** readable without a server process, an **explicit catalog API**, and **Amiga message ports** for notification. |
 | **NeXTSTEP linking** | Typed pasteboard / bundle notifications, mapped onto IFF containers and a shared on-disk catalog. |
-| **datatypes.library** | NamedObject token for cross-process shared state without a resident daemon. |
 | **Soft-Logik PageStream stack** | PageLiner publishes `FORM DTXT`; BME publishes `FORM ILBM`; PageStream subscribes and reflows. |
 
 In practice HotLinks is **System 7 PubSub plus a DTP-aware database**, whereas OLE32 is **"the document
@@ -268,59 +259,6 @@ C:publish_text
 Packagers add `ASSIGN HotLinks: SYS:HotLinks` (or wherever they prefer) to `User-Startup`. Edition bodies
 are plain IFF files — any tool that understands `FORM DTXT` or `FORM ILBM` can read them directly from
 `HotLinks:Editions/` even without calling the API.
-
-Future integration with `LIST DOCS` + `XREF` + `EDLN` (see `github/DocType/Docs/IFF-DOCS.md` §12) can layer
-on without changing the 1992 LVO table.
-
-## Build
-
-Requires AmigaOS 3.x 68k, NDK 3.2 headers, `gadtools.library`, and SAS/C + smake + slink (ToolKit standard).
-See `Source/README.BUILD` for ABI rules and edition layout detail.
-
-From `Source/hotlinks/` on Amiga:
-
-```
-cd Source/hotlinks
-smake
-smake install
-smake headers
-```
-
-Copy `hotlinks.library` to `LIBS:`, CLI examples from `SDK/Examples/` to `C:`, and assign `HotLinks:`.
-
-SDK examples:
-
-```
-cd SDK/Examples
-smake
-```
-
-Test harness:
-
-```
-cd Source/test
-smake
-```
-
-| Target | Action |
-|--------|--------|
-| `smake` | Build `hotlinks.library` |
-| `smake install` | Install library to `LIBS:` |
-| `smake headers` | Install public headers to `include:` |
-| `smake clean` | Remove object files |
-
-Example session:
-
-```
-echo "Hello, HotLinks" > RAM:sample.txt
-publish_text MyFirstEdition RAM:sample.txt
-edlist
-read_edition MyFirstEdition RAM:out.txt
-type RAM:out.txt
-```
-
-Run `subscribe_demo MyFirstEdition` in one shell, then publish an update from another (`publish_text` again
-with the same name creates a new version).
 
 ## Contact
 

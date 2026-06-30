@@ -35,7 +35,7 @@ library, resident code, and support programs remained their copyrighted product.
 
 This `hotlinks.library` is an **independent reimplementation** by
 amigazen project. It was written using the public SDK materials (headers,
-autodocs, and format notes in `/HotLinks_Developers_Kit/`) as reference
+autodocs, and format notes in the original `HotLinks_Developers_Kit`) as reference
 entirely from first principles. **It does not incorporate, derive from, or link 
 against any Soft-Logik source code, binaries, or resident program.
 
